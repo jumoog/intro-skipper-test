@@ -11,25 +11,49 @@ if (!fs.existsSync(manifestPath)) {
 }
 const jsonData = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 
-async function validateJSON(data) {
-    for (const item of data) {
+const newVersion = {
+    version: process.env.VERSION, // replace with the actual new version
+    changelog: "- See the full changelog at [GitHub](https://github.com/jumoog/intro-skipper/blob/master/CHANGELOG.md)\n",
+    targetAbi: "10.9.0.0",
+    sourceUrl: process.env.SOURCE_URL,
+    checksum: process.env.CHECKSUM,
+    timestamp: process.env.TIMESTAMP
+};
+
+async function updateManifest() {
+	await validVersion(newVersion);
+	
+    // Add the new version to the manifest
+    jsonData[0].versions.unshift(newVersion);
+
+    // Write the updated manifest to file if validation is successful
+    fs.writeFileSync(manifestPath, JSON.stringify(jsonData, null, 4));
+    console.log('Manifest updated successfully.');
+}
+
+async function validateJSON() {
+    for (const item of jsonData) {
         for (const version of item.versions) {
-            console.log(`Validating version ${version.version}...`);
-
-            const isValidUrl = await checkUrl(version.sourceUrl);
-            if (!isValidUrl) {
-                console.error(`Invalid URL: ${version.sourceUrl}`);
-                process.exit(1); // Exit with an error code
-            }
-
-            const isValidChecksum = await verifyChecksum(version.sourceUrl, version.checksum);
-            if (!isValidChecksum) {
-                console.error(`Checksum mismatch for URL: ${version.sourceUrl}`);
-                process.exit(1); // Exit with an error code
-            } else {
-                console.log(`Version ${version.version} is valid.`);
-            }
+			await validVersion(version);
         }
+    }
+}
+
+async function validVersion(version) {
+    console.log(`Validating version ${version.version}...`);
+
+    const isValidUrl = await checkUrl(version.sourceUrl);
+    if (!isValidUrl) {
+        console.error(`Invalid URL: ${version.sourceUrl}`);
+        process.exit(1); // Exit with an error code
+    }
+
+    const isValidChecksum = await verifyChecksum(version.sourceUrl, version.checksum);
+    if (!isValidChecksum) {
+        console.error(`Checksum mismatch for URL: ${version.sourceUrl}`);
+        process.exit(1); // Exit with an error code
+    } else {
+        console.log(`Version ${version.version} is valid.`);
     }
 }
 
@@ -87,5 +111,9 @@ async function downloadFile(url, destinationPath, redirects = 5) {
     });
 }
 
-// Run the validation
-validateJSON(jsonData).then(() => console.log('Validation complete.'));
+async function run() {
+	await updateManifest();
+	await validateJSON();
+}
+
+run();
