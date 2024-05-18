@@ -1,7 +1,7 @@
 const https = require('https');
 const crypto = require('crypto');
 const fs = require('fs');
-const { pipeline } = require('stream/promises');
+const { URL } = require('url');
 
 // Read manifest.json
 const manifestPath = './manifest.json';
@@ -36,7 +36,7 @@ async function validateJSON(data) {
 function checkUrl(url) {
     return new Promise((resolve) => {
         https.get(url, (res) => {
-            resolve(res.statusCode === 200);
+            resolve(res.statusCode === 302);
         }).on('error', () => {
             resolve(false);
         });
@@ -44,7 +44,7 @@ function checkUrl(url) {
 }
 
 async function verifyChecksum(url, expectedChecksum) {
-    const tempFilePath = 'tempfile.zip';
+    const tempFilePath = `tempfile_${Math.random().toString(36).substring(2, 15) + Math.random().toString(23).substring(2, 5)}.zip`;
 
     try {
         await downloadFile(url, tempFilePath);
@@ -58,12 +58,33 @@ async function verifyChecksum(url, expectedChecksum) {
     }
 }
 
-async function downloadFile(url, destinationPath) {
+async function downloadFile(url, destinationPath, redirects = 5) {
+    if (redirects === 0) {
+        throw new Error('Too many redirects');
+    }
+
     const file = fs.createWriteStream(destinationPath);
-    await pipeline(
-        https.get(url, response => response.pipe(file)),
-        file
-    );
+
+    return new Promise((resolve, reject) => {
+        https.get(url, (response) => {
+            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                // Follow redirect
+                const redirectUrl = new URL(response.headers.location, url).toString();
+                downloadFile(redirectUrl, destinationPath, redirects - 1)
+                    .then(resolve)
+                    .catch(reject);
+            } else if (response.statusCode === 200) {
+                response.pipe(file);
+                file.on('finish', () => {
+                    file.close(resolve);
+                });
+            } else {
+                reject(new Error(`Failed to get '${url}' (${response.statusCode})`));
+            }
+        }).on('error', (err) => {
+            fs.unlink(destinationPath, () => reject(err));
+        });
+    });
 }
 
 // Run the validation
