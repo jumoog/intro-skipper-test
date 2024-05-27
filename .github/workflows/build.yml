@@ -78,7 +78,7 @@ jobs:
         checksum="$(awk '{print $1}' intro-skipper-${{ env.GIT_HASH }}.md5)"
         echo "CHECKSUM=$checksum" >> $GITHUB_ENV
 
-    - name: Check if prerelease with tag '10.9/preview' exists and delete it
+    - name: Create/replace the preview release and upload artifacts
       if: github.event_name != 'pull_request'
       run: |
          gh release delete '10.9/preview' --cleanup-tag --yes || true
