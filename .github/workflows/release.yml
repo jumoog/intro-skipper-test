@@ -44,12 +44,8 @@ jobs:
         if-no-files-found: error
 
     - name: Create archive
-      uses: vimtor/action-zip@v1.2
-      with:
-        files: |
-          ConfusedPolarBear.Plugin.IntroSkipper/bin/Debug/net8.0/ConfusedPolarBear.Plugin.IntroSkipper.dll
-        dest: intro-skipper-v${{ env.NEW_FILE_VERSION }}.zip
-
+      run: zip -j "intro-skipper-v${{ env.NEW_FILE_VERSION }}.zip" ConfusedPolarBear.Plugin.IntroSkipper/bin/Debug/net8.0/ConfusedPolarBear.Plugin.IntroSkipper.dll
+      
     - name: Generate manifest keys
       run: |
         sourceUrl="https://github.com/${{ github.repository }}/releases/download/10.9/v${{ env.NEW_FILE_VERSION }}/intro-skipper-v${{ env.NEW_FILE_VERSION }}.zip"
