@@ -69,7 +69,7 @@ jobs:
 
     - name: Create archive
       if: github.event_name != 'pull_request'
-      run: zip -j "intro-skipper-v${{ env.NEW_FILE_VERSION }}.zip" ConfusedPolarBear.Plugin.IntroSkipper/bin/Debug/net8.0/ConfusedPolarBear.Plugin.IntroSkipper.dll
+      run: zip -j "intro-skipper-${{ env.GIT_HASH }}.zip" ConfusedPolarBear.Plugin.IntroSkipper/bin/Debug/net8.0/ConfusedPolarBear.Plugin.IntroSkipper.dll
 
     - name: Generate md5
       if: github.event_name != 'pull_request'
