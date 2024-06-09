@@ -1046,7 +1046,7 @@
             document.querySelector('#TemplateConfigPage')
                 .addEventListener('pageshow', function () {
                     Dashboard.showLoadingMsg();
-                    ApiClient.getPluginConfiguration("c83d86bb-a1e0-4c35-a113-e2101cf4ee6b").then(function (config) {
+                    ApiClient.getPluginConfiguration("fb86f1a5-576b-4f4a-ae66-8e2e5a929686").then(function (config) {
                         for (const field of configurationFields) {
                             document.querySelector("#" + field).value = config[field];
                         }
@@ -1066,7 +1066,7 @@
             document.querySelector('#FingerprintConfigForm')
                 .addEventListener('submit', function (e) {
                     Dashboard.showLoadingMsg();
-                    ApiClient.getPluginConfiguration("c83d86bb-a1e0-4c35-a113-e2101cf4ee6b").then(function (config) {
+                    ApiClient.getPluginConfiguration("fb86f1a5-576b-4f4a-ae66-8e2e5a929686").then(function (config) {
                         for (const field of configurationFields) {
                             config[field] = document.querySelector("#" + field).value;
                         }
@@ -1075,7 +1075,7 @@
                             config[field] = document.querySelector("#" + field).checked;
                         }
 
-                        ApiClient.updatePluginConfiguration("c83d86bb-a1e0-4c35-a113-e2101cf4ee6b", config)
+                        ApiClient.updatePluginConfiguration("fb86f1a5-576b-4f4a-ae66-8e2e5a929686", config)
                             .then(function (result) {
                                 Dashboard.processPluginConfigurationUpdateResult(result);
                             });
