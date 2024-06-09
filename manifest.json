@@ -1,6 +1,6 @@
 [
     {
-        "guid": "c83d86bb-a1e0-4c35-a113-e2101cf4ee6c",
+        "guid": "c83d86bb-a1e0-4c35-a113-e2101cf4ee6b",
         "name": "Intro Skipper",
         "overview": "Automatically detect and skip intros in television episodes",
         "description": "Analyzes the audio of television episodes and detects introduction sequences.",
